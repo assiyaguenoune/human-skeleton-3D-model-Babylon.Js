@@ -1,5 +1,10 @@
 window.addEventListener('DOMContentLoaded', function(){
+
     var canvas = document.getElementById('canvas');
+
+    
+    // je vais changer ce code 
+
 
     var engine = new BABYLON.Engine(canvas, true);
     var createScene = function(){
