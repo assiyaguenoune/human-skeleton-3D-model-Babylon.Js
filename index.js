@@ -6,16 +6,19 @@ window.addEventListener('DOMContentLoaded', function(){
   var createScene = function(){
       
       var scene = new BABYLON.Scene(engine); //create scene
-
-     
       scene.clearColor = new BABYLON.Color3.Black();  //set scene color
 
-      const camera = new BABYLON.ArcRotateCamera("Camera", 1, 1, 4, BABYLON.Vector3.Zero(), scene);  //add a camera 
-      camera.attachControl(canvas, false);
-      
-      const light = new BABYLON.PointLight("light",new BABYLON.Vector3(5,10,0), scene); // Lightting
+      //Adding an Arc Rotate Camera
+      const camera = new BABYLON.ArcRotateCamera("Camera", -3, 1, 1.5, BABYLON.Vector3.Zero(), scene);  //add a camera 
+      camera.attachControl(canvas, false); 
+
+      //Adding a light
+      const light = new BABYLON.PointLight("light",new BABYLON.Vector3(5,3,0), scene); // Lightting
       light.parent= camera; // light color
       light.diffuse = new BABYLON.Color3(1,1,1);
+
+      // Default intensity is 1. Let's dim the light a small amount
+      light.intensity = 0.9;
 
       scene.actionManager= new BABYLON.ActionManager(scene);  //Ceate action
       scene.actionManager.registerAction(
@@ -24,16 +27,49 @@ window.addEventListener('DOMContentLoaded', function(){
               function (){
                   light.setEnabled(!light.isEnabled());
               }));
-
-      const cheval=BABYLON.SceneLoader.ImportMesh("","","cheval.babylon",scene, 
+      var cheval;
+      BABYLON.SceneLoader.ImportMesh("","","cheval.babylon",scene, 
               function(newMeshes){
                   newMeshes.forEach(function(mesh){
+                      cheval=newMeshes[0];
+                      // Set the target of the camera to the first imported mesh
+                      camera.target = cheval;
+                      cheval.position.y = 1;
+                     // cheval.rotation.y = slider.value;
                       mesh.rotation= new BABYLON.Vector3(
-                          BABYLON.Tools.ToRadians(45),0,0);
+                          BABYLON.Tools.ToRadians(10),0,0);
                   })});    
-      cheval.position = new BABYLON.Vector3(0,1,0);
+      // Move the light with the camera
+      scene.registerBeforeRender(function () {
+      light.position = camera.position;
+       });
+       // GUI
+      var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+      var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", "Click Me");
+      button1.width = "150px"
+      button1.height = "40px";
+      button1.color = "white";
+      button1.cornerRadius = 20;
+      button1.background = "green";
+      button1.onPointerUpObservable.add(function() {
+        alert("you did it!");
+      });
+      advancedTexture.addControl(button1);  
+
+       
+      //cheval.position = new BABYLON.Vector3(0,1,0);
+      //cheval.position.y = 1;
+      //scene.getMeshByName("").position.y =1;
       const ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 4, height: 4},scene);
-      ground.position = new BABYLON.Vector3(0,0,0);
+      ground.position = new BABYLON.Vector3(0,0.5,0);
+      //var decalMaterial = new BABYLON.StandardMaterial("decalMat", scene);
+      //var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 300, height:15}, scene);
+      //ground.material = decalMaterial;
+
+
+      
+      	
       const xrPromise = scene.createDefaultXRExperienceAsync({
         floorMeshes: [ground]
     });
@@ -49,7 +85,6 @@ window.addEventListener('DOMContentLoaded', function(){
         console.log("Done, WebXR is enabled.");
         return scene;
   });*/
-      return scene;
   };
 
   /*var scene = createScene();
@@ -62,3 +97,4 @@ window.addEventListener('DOMContentLoaded', function(){
 });
 
 });
+
